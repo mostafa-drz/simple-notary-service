@@ -146,22 +146,27 @@ app.post('/message-signature/validate', async(req, res) => {
             });
         } else {
             const isValid = bitcoinMessage.verify(validationRequest.message, address, signature);
-            // const grantedAccess = {
-            //     registerStart: true,
-            //     status: Object.assign({
-            //         messageSignature: 'valid'
-            //     }, validationRequest, {
-            //         validationWindow: VALIDATION_WINDOW - validationRemainingTime
-            //     })
-            // }
-            // await addToGrantedAccesses(address, grantedAccess);
-            res.status(200).send({
-                valid: isValid
-            });
+            if (isValid) {
+                removeFromPool(address);
+                const grantedAccess = {
+                    registerStart: true,
+                    status: Object.assign({
+                        messageSignature: 'valid'
+                    }, validationRequest, {
+                        validationWindow: VALIDATION_WINDOW - validationRemainingTime
+                    })
+                }
+                await addToGrantedAccesses(address, grantedAccess);
+                res.status(200).send(grantedAccess);
+            } else {
+                res.status(400).send({
+                    error: {
+                        message: "The Signature is not valid"
+                    }
+                });
+            }
         }
-
     } catch (error) {
-        console.log(error);
         res.status(400).send(error);
     }
 });
