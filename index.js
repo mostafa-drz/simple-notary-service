@@ -17,22 +17,93 @@ const {
 const VALIDATION_WINDOW = 300;
 const chain = new Blockchain();
 app.use(bodyParser.json());
-app.post('/block', (req, res) => {
-    if (!req.body || !req.body.body || req.body.body.trim() === 0) {
-        return res.status(400).send({
-            error: {
-                message: "The body can not be empty"
-            }
-        });
-    }
+app.post('/block', async(req, res) => {
     try {
-        chain.addBlock(req.body).then((value) => {
-            return res.status(200).send(value);
-        }).catch((err) => {
-            return res.status(500).send(err);
-        })
+        if (!req.body) {
+            return res.status(400).send({
+                error: {
+                    message: "The address and start properties are required"
+                }
+            });
+        }
+        if (!req.body.address) {
+            return res.status(400).send({
+                error: {
+                    message: "The wallet address is required for start registeration"
+                }
+            })
+        }
+        if (!req.body.star) {
+            return res.status(400).send({
+                error: {
+                    message: "The star properties are required for registeration"
+                }
+            })
+        }
+        if (!req.body.star.ra) {
+            return res.status(400).send({
+                error: {
+                    message: "The right_ascension is required for star resgiteration"
+                }
+            })
+        }
+        if (!req.body.star.dec) {
+            return res.status(400).send({
+                error: {
+                    message: "The declination is required for star registeration"
+                }
+            })
+        }
+        if (!req.body.star.story) {
+            return res.status(400).send({
+                error: {
+                    message: "The story is required for star registeration"
+                }
+            })
+        }
+        if (req.body.star.story.split(' ').length > 250) {
+            return res.status(400).send({
+                error: {
+                    message: "The story should be less than 250 words"
+                }
+            })
+        }
+        if (req.body.star.story.trim().length === 0) {
+            return res.status(400).send({
+                error: {
+                    message: "The story could not be empty"
+                }
+            })
+        }
+        const {
+            address,
+            star: {
+                story
+            }
+        } = req.body;
+        const grantedAccess = await getFromGrantedAccess(address);
+        const remainingTime = (new Date().getTime() - grantedAccess.status.requestTimeStamp) / 1000;
+        if (remainingTime > 300) {
+            removeFromGrantedAccess(address);
+            return res.status(400).send({
+                error: {
+                    message: 'Your granted access timed-out'
+                }
+            });
+        } else {
+            const storyEncode = new Buffer(story).toString('hex');
+            const starObject = Object.assign({}, req.body.star, {
+                story: storyEncode
+            });
+            chain.addBlock(starObject).then((value) => {
+                removeFromGrantedAccess(address);
+                res.status(200).send(value);
+            }).catch((err) => {
+                return res.status(500).send(err);
+            })
+        }
     } catch (error) {
-        console.log(error);
+        return res.status(400).send(error);
     }
 })
 
