@@ -1,5 +1,5 @@
 const level = require('level');
-const grantedAccesses = './granted-access';
+const grantedAccesses = './grantedAccessData';
 const db = level(grantedAccesses);
 
 function addToGrantedAccesses(address, value) {

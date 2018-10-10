@@ -1,5 +1,5 @@
 const level = require('level');
-const memPool = './mem-pool';
+const memPool = './mempoolData';
 const db = level(memPool);
 
 function addToMemPool(address, value) {
