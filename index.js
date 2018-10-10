@@ -14,6 +14,7 @@ const {
     getFromGrantedAccess,
     removeFromGrantedAccess
 } = require('./grantedAccesses');
+//You can change the validation window timeout here
 const VALIDATION_WINDOW = 300;
 const chain = new Blockchain();
 app.use(bodyParser.json());
@@ -95,9 +96,15 @@ app.post('/block', async(req, res) => {
             const starObject = Object.assign({}, req.body.star, {
                 story: storyEncode
             });
-            chain.addBlock(starObject).then((value) => {
+            const block = {
+                "body": {
+                    address,
+                    "star": starObject
+                }
+            }
+            chain.addBlock(block).then((block) => {
                 removeFromGrantedAccess(address);
-                res.status(200).send(value);
+                res.status(200).send(block);
             }).catch((err) => {
                 return res.status(500).send(err);
             })
@@ -117,7 +124,7 @@ app.get('/block/:height', (req, res) => {
     }
     try {
         chain.getBlock(req.params.height).then((value) => {
-            res.status(200).send(Object.assign({}, value, { storyDecoded: new Buffer(value.story, 'hex').toString('utf8') }));
+            res.status(200).send(decodeStoryForResponse(value));
         }).catch((error) => {
             return res.status(400).send(error);
         })
@@ -189,8 +196,6 @@ app.post('/requestValidation', (req, res) => {
     }).catch((error) => {
         res.status(500).send(error);
     })
-
-
 });
 
 app.post('/message-signature/validate', async(req, res) => {
@@ -241,12 +246,21 @@ app.post('/message-signature/validate', async(req, res) => {
         res.status(400).send(error);
     }
 });
-// app.use(express.static('client/build'));
 
-// const path = require('path');
-// app.get('*', (req, res) => {
-//     res.sendFile(path.resolve('client', 'build', 'index.html'));
-// });
+app.get('/stars/hash/:hash', (req, res) => {
+    chain.searchBasedOnHash(req.params.hash).then((block) => {
+        res.status(200).send(decodeStoryForResponse(block));
+    }).catch((error) => {
+        res.status(400).send(error);
+    })
+})
+app.get('/stars/address/:address', (req, res) => {
+    chain.searchBasedOnAddress(req.params.address).then((results) => {
+        res.status(200).send(results.map(decodeStoryForResponse));
+    }).catch((error) => {
+        res.status(400).send(error);
+    })
+})
 app.listen(process.env.PORT || 8000, (error) => {
     if (error) {
         console.log('Somethign went wrong when tried to start the server');
@@ -254,3 +268,11 @@ app.listen(process.env.PORT || 8000, (error) => {
         console.log(`Server is running on port ${process.env.PORT || 8000}`);
     }
 })
+
+const decodeStoryForResponse = (block) => {
+    const star = block.body.star;
+    Object.assign(star, {
+        storyDecoded: new Buffer(star.story, 'hex').toString('utf8')
+    });
+    return block;
+}

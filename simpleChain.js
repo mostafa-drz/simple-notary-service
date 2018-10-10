@@ -43,7 +43,7 @@ class Blockchain {
 
     }
     addBlock(newBlock) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
             try {
                 const height = await this.getBlockHeight();
                 if (height === 0) {
@@ -94,7 +94,7 @@ class Blockchain {
         });
     }
     getBlock(blockHeight) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
             const height = await this.getBlockHeight();
             if (blockHeight >= height) {
                 return reject({
@@ -117,7 +117,7 @@ class Blockchain {
     }
 
     validateBlock(blockHeight) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
             const chainHeight = await this.getBlockHeight();
             if (blockHeight >= chainHeight) {
                 return reject({
@@ -152,7 +152,7 @@ class Blockchain {
     }
 
     validateChain() {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
             try {
                 let errorLog = [];
                 const BLOCK_HEIGHT = await this.getBlockHeight();
@@ -185,6 +185,60 @@ class Blockchain {
                 })
             }
         });
+    }
+    searchBasedOnAddress(
+        address
+    ) {
+        const results = [];
+        return new Promise(async(resolve, reject) => {
+            try {
+                const blockCounts = await this.getBlockHeight();
+                for (let i = 0; i < blockCounts; i++) {
+                    const block = await this.getBlock(i);
+                    if (block.body && block.body.address === address) {
+                        results.push(block);
+                    }
+                }
+                resolve(results);
+            } catch (error) {
+                console.log(error);
+                reject({
+                    error: {
+                        message: 'Something went wrong when tried to search blocks based on address',
+                        main: error
+                    }
+                })
+            }
+        })
+    }
+    searchBasedOnHash(
+        hash
+    ) {
+
+        return new Promise(async(resolve, reject) => {
+            try {
+                const blockCounts = await this.getBlockHeight();
+                for (let i = 0; i < blockCounts; i++) {
+                    const block = await this.getBlock(i);
+                    if (block.hash === hash) {
+                        return resolve(block);
+
+                    }
+                }
+                reject({
+                    error: {
+                        message: 'Not found'
+                    }
+                })
+            } catch (error) {
+                reject({
+                    error: {
+                        message: 'Something went wrong when tried to search based on block hash',
+                        main: error
+                    }
+                })
+            }
+        })
     }
 }
 
