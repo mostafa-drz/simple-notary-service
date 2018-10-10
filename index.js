@@ -243,7 +243,11 @@ app.post('/message-signature/validate', async(req, res) => {
             }
         }
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).send({
+            error: {
+                message: 'not a valid signature'
+            }
+        });
     }
 });
 
