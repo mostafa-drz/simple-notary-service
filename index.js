@@ -117,7 +117,7 @@ app.get('/block/:height', (req, res) => {
     }
     try {
         chain.getBlock(req.params.height).then((value) => {
-            res.status(200).send(value);
+            res.status(200).send(Object.assign({}, value, { storyDecoded: new Buffer(value.story, 'hex').toString('utf8') }));
         }).catch((error) => {
             return res.status(400).send(error);
         })
