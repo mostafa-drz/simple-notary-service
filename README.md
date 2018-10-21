@@ -10,7 +10,7 @@ Project inlcudes two basic functionality:
 To submit a star, first you have to verify your identity by signing a message in your wallet. You have only 5 minutes to complete a star submiting process (includes identity verification and submiting star info)
  
  ## Install the application
- Clone the repository by running ```git clone ``` and then in the root path of cloned respository run ```npm install``` to install the dependencies.
+ Clone the repository by running ```git clone https://github.com/mostafa69d/simple-notary-service.git ``` and then in the root path of cloned respository run ```npm install``` to install the dependencies.
 
 ## Run the application
 
