@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const Blockchain = require('./simpleChain');
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
+const cors = require('cors');
 const {
     addToMemPool,
     getFromMempool,
@@ -18,6 +19,7 @@ const {
 const VALIDATION_WINDOW = 300;
 const chain = new Blockchain();
 app.use(bodyParser.json());
+app.use(cors());
 app.post('/block', async(req, res) => {
     try {
         if (!req.body) {

@@ -1,0 +1,39 @@
+.SubmitStar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-top: 3%;
+}
+
+.SubmitStar__start {
+    width: 500px;
+    color: #fafafa;
+    background: transparent;
+    margin: 10% auto;
+    font-size: 4rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.SubmitStar__start:hover {
+    cursor: pointer;
+}
+
+.SubmitStar__start:hover {
+    color: yellow;
+    border-color: yellow;
+    transition: all .3s ease-in-out;
+}
+
+.SubmitStar__input {
+    width: 100%;
+    font-size: 2rem;
+    background-color: #000;
+    text-align: center;
+    letter-spacing: 5px;
+    border: 2px solid yellow;
+}
